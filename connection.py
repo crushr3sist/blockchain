@@ -72,7 +72,7 @@ class Peer(PeerSocket):
                 )
                 threading.Event().wait(5)
                 if self.peers["peers"] != None:
-                    break
+                    time.sleep(10)
 
     def listen_for_discovery(self):
         print("start listen")
@@ -97,7 +97,7 @@ class Peer(PeerSocket):
                     "port": discovery_message["port"],
                 }
                 if self.peers["peers"] != None:
-                    break
+                    time.sleep(10)
 
     def connection_loop(self):
         while True:
