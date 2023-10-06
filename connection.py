@@ -83,15 +83,16 @@ class Peer(PeerSocket):
                 peer_id = discovery_message["peer_id"]
 
                 print(self.known_peers)
-                if peer_id != self.peer_id and peer_id not in self.known_peers:
-                    self.known_peers.add(peer_id)
-                    print(
-                        f"Discovered peer: {peer_id} at {discovery_message['host']}:{discovery_message['port']}"
-                    )
+                self.known_peers.add(peer_id)
+                print(
+                    f"Discovered peer: {peer_id} at {discovery_message['host']}:{discovery_message['port']}"
+                )
+
+    def connection_loop(self):
+        threading.Thread(target=self.broadcast_discovery).start()
+        threading.Thread(target=self.listen_for_discovery).start()
 
 
 if __name__ == "__main__":
     peer1 = Peer("peer1", "10.1.1.140", 5001, 5002)
-
-    threading.Thread(target=peer1.broadcast_discovery).start()
-    threading.Thread(target=peer1.listen_for_discovery).start()
+    peer1.connection_loop()
