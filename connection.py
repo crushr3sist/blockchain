@@ -48,12 +48,16 @@ class Peer(PeerSocket):
         self.known_peers = set()
         self.broadcast_port = broadcast_port
         self.peers = {}
+        self.broadcast_socket = socket.socket(
+            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP
+        )
+        self.discovery_socket = socket.socket(
+            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP
+        )
 
     def broadcast_discovery(self):
         print("start discover")
-        with socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP
-        ) as udp_socket:
+        with self.broadcast_socket as udp_socket:
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
             udp_socket.bind(("0.0.0.0", self.broadcast_port))
@@ -72,9 +76,7 @@ class Peer(PeerSocket):
 
     def listen_for_discovery(self):
         print("start listen")
-        with socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP
-        ) as udp_socket:
+        with self.discovery_socket as udp_socket:
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             udp_socket.bind(("0.0.0.0", self.port))
             while True:
@@ -106,7 +108,7 @@ class Peer(PeerSocket):
             print(self.peers)
             self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"])
             self.listen_for_messages()
-            self.send_message()
+            self.send_message(self.socket, f"hello from {self.peer_id}")
 
 
 if __name__ == "__main__":
