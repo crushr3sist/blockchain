@@ -83,9 +83,9 @@ class Peer(PeerSocket):
             udp_socket.bind(("0.0.0.0", self.port))
             while True:
                 data, (source_ip, _source_port) = udp_socket.recvfrom(1024)
-                if source_ip == self.host:
-                    print("true")
-                    continue
+                # if source_ip == self.host:
+                # print("true")
+                # continue
                 discovery_message = json.loads(data.decode())
                 peer_id = discovery_message["peer_id"]
 
@@ -98,19 +98,19 @@ class Peer(PeerSocket):
                     "ip": discovery_message["host"],
                     "port": discovery_message["port"],
                 }
-                if self.peers["peers"] != None:
-                    time.sleep(10)
 
     def connection_loop(self):
         while True:
             threading.Thread(target=self.broadcast_discovery).start()
             threading.Thread(target=self.listen_for_discovery).start()
-            time.sleep(10)
             self.start()
             print(self.peers)
-            self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"] + 1)
-            self.listen_for_messages()
+            if self.peers["peers"].__len__() != 0:
+                self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"] + 1)
+            else:
+                time.sleep(3)
             self.send_message(self.socket, f"hello from {self.peer_id}")
+            self.listen_for_messages()
 
 
 if __name__ == "__main__":
