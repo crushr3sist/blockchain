@@ -79,16 +79,15 @@ class Peer(PeerSocket):
                 if source_ip == self.host:
                     print("true")
                     continue
-                else:
-                    discovery_message = json.loads(data.decode())
-                    peer_id = discovery_message["peer_id"]
+                discovery_message = json.loads(data.decode())
+                peer_id = discovery_message["peer_id"]
 
-                    print(self.known_peers)
-                    if peer_id != self.peer_id and peer_id not in self.known_peers:
-                        self.known_peers.add(peer_id)
-                        print(
-                            f"Discovered peer: {peer_id} at {discovery_message['host']}:{discovery_message['port']}"
-                        )
+                print(self.known_peers)
+                if peer_id != self.peer_id and peer_id not in self.known_peers:
+                    self.known_peers.add(peer_id)
+                    print(
+                        f"Discovered peer: {peer_id} at {discovery_message['host']}:{discovery_message['port']}"
+                    )
 
 
 if __name__ == "__main__":
