@@ -42,10 +42,11 @@ class PeerSocket:
 
 
 class Peer(PeerSocket):
-    def __init__(self, peer_id, host, port):
-        super().__init__(host, port)
+    def __init__(self, peer_id, host, broadcast_port, listen_port):
+        super().__init__(host, listen_port)
         self.peer_id = peer_id
         self.known_peers = set()
+        self.broadcast_port = broadcast_port
 
     def broadcast_discovery(self):
         print("start discover")
@@ -54,7 +55,7 @@ class Peer(PeerSocket):
         ) as udp_socket:
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-            udp_socket.bind(("0.0.0.0", self.port))
+            udp_socket.bind(("0.0.0.0", self.broadcast_port))
             while True:
                 discovery_message = {
                     "peer_id": self.peer_id,
@@ -91,8 +92,7 @@ class Peer(PeerSocket):
 
 
 if __name__ == "__main__":
-    peer1 = Peer("peer1", "127.0.0.1", 5000)
-    peer2 = Peer("peer2", "127.0.0.1", 5001)
+    peer1 = Peer("peer1", "10.1.1.140", 5001, 5002)
 
     threading.Thread(target=peer1.broadcast_discovery).start()
-    threading.Thread(target=peer2.listen_for_discovery).start()
+    threading.Thread(target=peer1.listen_for_discovery).start()
