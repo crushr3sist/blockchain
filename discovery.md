@@ -1,0 +1,6 @@
+- discovery server looks at local nodes
+- they check if they have ips of other local peers
+- if they dont then they send a message to the discovery server
+- discovery server sends local ips and they establish found message
+- this is done on launch to find other peers.
+- this is a chat app btw.
