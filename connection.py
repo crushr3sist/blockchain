@@ -18,7 +18,7 @@ class PeerSocket:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def start(self):
-        self.socket.bind((self.host, self.port))
+        self.socket.bind(("0.0.0.0", self.port))
         self.socket.listen(5)
 
     def connect(self, target_host, target_port):
@@ -47,6 +47,7 @@ class Peer(PeerSocket):
         self.peer_id = peer_id
         self.known_peers = set()
         self.broadcast_port = broadcast_port
+        self.peers = {}
 
     def broadcast_discovery(self):
         print("start discover")
@@ -66,6 +67,8 @@ class Peer(PeerSocket):
                     json.dumps(discovery_message).encode(), ("10.1.1.255", self.port)
                 )
                 threading.Event().wait(5)
+                if self.peers["peers"] != None:
+                    break
 
     def listen_for_discovery(self):
         print("start listen")
@@ -87,13 +90,23 @@ class Peer(PeerSocket):
                 print(
                     f"Discovered peer: {peer_id} at {discovery_message['host']}:{discovery_message['port']}"
                 )
+                self.peers["peers"] = {
+                    "ip": discovery_message["host"],
+                    "port": discovery_message["port"],
+                }
+                if self.peers["peers"] != None:
+                    break
 
     def connection_loop(self):
-        threading.Thread(target=self.broadcast_discovery).start()
-        threading.Thread(target=self.listen_for_discovery).start()
-        self.start()
-        self.listen_for_messages()
-        self.send_message()
+        while True:
+            threading.Thread(target=self.broadcast_discovery).start()
+            threading.Thread(target=self.listen_for_discovery).start()
+            time.sleep(10)
+            self.start()
+            print(self.peers)
+            self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"])
+            self.listen_for_messages()
+            self.send_message()
 
 
 if __name__ == "__main__":
