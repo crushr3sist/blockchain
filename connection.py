@@ -91,6 +91,9 @@ class Peer(PeerSocket):
     def connection_loop(self):
         threading.Thread(target=self.broadcast_discovery).start()
         threading.Thread(target=self.listen_for_discovery).start()
+        self.start()
+        self.listen_for_messages()
+        self.send_message()
 
 
 if __name__ == "__main__":
