@@ -10,6 +10,8 @@ import socket
 import threading
 import json
 
+from discovery_central_server import get_local_ip
+
 
 class PeerSocket:
     def __init__(self, host, port):
@@ -47,7 +49,7 @@ class Peer(PeerSocket):
         self.peer_id = peer_id
         self.known_peers = set()
         self.broadcast_port = broadcast_port
-        self.peers = {}
+        self.peers = {"peers": {}}
         self.broadcast_socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP
         )
@@ -106,11 +108,11 @@ class Peer(PeerSocket):
             time.sleep(10)
             self.start()
             print(self.peers)
-            self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"])
+            self.connect(self.peers["peers"]["ip"], self.peers["peers"]["port"] + 1)
             self.listen_for_messages()
             self.send_message(self.socket, f"hello from {self.peer_id}")
 
 
 if __name__ == "__main__":
-    peer1 = Peer("peer1", "10.1.1.140", 5001, 5002)
+    peer1 = Peer("peer1", get_local_ip(), 5001, 5002)
     peer1.connection_loop()
